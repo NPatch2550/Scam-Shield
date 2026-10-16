@@ -1,0 +1,37 @@
+{
+  "name": "scam-shield-backend",
+  "version": "1.0.0",
+  "description": "Scam Shield – Anti-Investment Scam & Corporate Verification System (Backend)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/scripts/seed.js",
+    "demo": "node src/server.js",
+    "test:api": "node src/scripts/test-api.js",
+    "sim:call": "node src/scripts/simulate-3way-call.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^7.1.0",
+    "joi": "^17.13.1",
+    "mongodb-memory-server": "^10.0.0",
+    "mongoose": "^8.4.1",
+    "morgan": "^1.10.0",
+    "natural": "^6.12.0",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.8.4",
+    "uuid": "^10.0.0",
+    "winston": "^3.13.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "allowScripts": {
+    "mongodb-memory-server@10.4.3": true
+  }
+}

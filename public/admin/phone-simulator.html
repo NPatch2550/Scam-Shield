@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scam Shield – Android Device Simulator</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #060d1a; color: #e2e8f0; }
+    
+    /* Android Phone Hardware Mockup */
+    .phone-chassis {
+      width: 380px;
+      height: 780px;
+      background: #111827;
+      border-radius: 44px;
+      border: 10px solid #1f2937;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(37, 99, 235, 0.2);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-notch {
+      width: 140px;
+      height: 24px;
+      background: #1f2937;
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .camera-lens {
+      width: 10px;
+      height: 10px;
+      background: #030712;
+      border-radius: 50%;
+      border: 1px solid #374151;
+    }
+    .speaker-slot {
+      width: 48px;
+      height: 4px;
+      background: #374151;
+      border-radius: 2px;
+    }
+    .phone-screen {
+      flex: 1;
+      background: #0f172a;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .status-bar {
+      height: 32px;
+      padding: 6px 16px 0 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      z-index: 90;
+    }
+    .nav-bar {
+      height: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 4px;
+      background: #0f172a;
+    }
+    .nav-indicator {
+      width: 90px;
+      height: 4px;
+      background: #475569;
+      border-radius: 2px;
+    }
+
+    /* Floating Shield Bubble (SYSTEM_ALERT_WINDOW simulation) */
+    .floating-bubble {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      position: absolute;
+      z-index: 80;
+      cursor: grab;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6);
+      transition: background-color 0.4s ease, border-color 0.4s ease, transform 0.15s;
+    }
+    .floating-bubble:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+    .bubble-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: #ef4444;
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      border-radius: 10px;
+      padding: 1px 5px;
+      border: 1.5px solid #0f172a;
+    }
+
+    /* Audio wave animation for 3-way call */
+    .wave-bar {
+      width: 4px;
+      background: #38bdf8;
+      border-radius: 2px;
+      animation: soundWave 1.2s infinite ease-in-out;
+    }
+    @keyframes soundWave {
+      0%, 100% { height: 6px; }
+      50% { height: 28px; }
+    }
+    .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.1s; }
+    .wave-bar:nth-child(5) { animation-delay: 0.3s; }
+  </style>
+</head>
+<body class="p-6 min-h-screen flex items-center justify-center">
+
+<div class="max-w-6xl w-full flex flex-col md:flex-row gap-8 items-center justify-center">
+
+  <!-- Left: Scenario Control Console -->
+  <div class="flex-1 space-y-4 max-w-md">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-xl shadow-lg">🛡️</div>
+      <div>
+        <h1 class="text-white font-bold text-xl">Scam Shield Live Android Simulator</h1>
+        <p class="text-slate-400 text-xs">Test real-time Android Native Overlays &amp; Backend API</p>
+      </div>
+    </div>
+
+    <!-- Public Internet Access Banner -->
+    <div class="p-3 bg-gradient-to-r from-blue-950/70 to-indigo-950/70 border border-blue-700/40 rounded-xl flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2 truncate">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0 animate-pulse"></span>
+        <span class="text-slate-300">Public DNS:</span>
+        <a href="https://royalty-deutsch-fantasy-consult.trycloudflare.com/app" target="_blank" class="text-emerald-400 font-mono underline truncate">trycloudflare.com/app</a>
+      </div>
+      <button onclick="navigator.clipboard.writeText('https://royalty-deutsch-fantasy-consult.trycloudflare.com/app'); alert('Public URL copied!')" class="shrink-0 ml-2 px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-semibold">Copy</button>
+    </div>
+
+    <!-- Mode Selector Cards -->
+    <div class="space-y-2">
+      <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Select Protection Scenario:</div>
+      
+      <!-- Scenario 1: LINE Chat -->
+      <button onclick="setScenario('chat')" id="btn-scen-chat" class="w-full text-left p-3.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 transition flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-lg">💬</div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-white">Chat Defense Mode (LINE/Telegram)</div>
+          <div class="text-xs text-slate-400">AccessibilityService node reader + Pig-Butchering regex</div>
+        </div>
+      </button>
+
+      <!-- Scenario 2: Incoming Call Screening -->
+      <button onclick="setScenario('call_screen')" id="btn-scen-screen" class="w-full text-left p-3.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 transition flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center text-lg">📞</div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-white">Call Screening (Pre-Call Interception)</div>
+          <div class="text-xs text-slate-400">CallScreeningService blocks known fake broker 0891234567</div>
+        </div>
+      </button>
+
+      <!-- Scenario 3: 3-Way Conference Call -->
+      <button onclick="setScenario('call_3way')" id="btn-scen-3way" class="w-full text-left p-3.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 transition flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center text-lg">🎙️</div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-white">3-Way Merged Call Defense (Cloud PBX)</div>
+          <div class="text-xs text-slate-400">Streams audio to NLP threat engine with diarization</div>
+        </div>
+      </button>
+
+      <!-- Scenario 4: Mobile Banking Brake -->
+      <button onclick="setScenario('banking_brake')" id="btn-scen-brake" class="w-full text-left p-3.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 transition flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-rose-600/20 text-rose-400 flex items-center justify-center text-lg">🛑</div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-white">Mobile Banking Transfer Brake</div>
+          <div class="text-xs text-slate-400">Accessibility detects switch to K PLUS / SCB EASY</div>
+        </div>
+      </button>
+
+      <!-- Scenario 5: Direct Search Portal -->
+      <button onclick="setScenario('search')" id="btn-scen-search" class="w-full text-left p-3.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 transition flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-lg">🔍</div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold text-white">"Before You Invest" In-App Search</div>
+          <div class="text-xs text-slate-400">Direct SEC/DBD &amp; Anti-SEO Corporate Scorecard</div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
+      <a href="/admin" class="hover:text-blue-400 transition flex items-center gap-1">← Back to Admin Portal</a>
+      <span class="text-emerald-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Backend Connected (Port 3000)</span>
+    </div>
+  </div>
+
+  <!-- Right: Virtual Android Smartphone -->
+  <div class="phone-chassis">
+    <!-- Top Notch -->
+    <div class="phone-notch">
+      <div class="camera-lens"></div>
+      <div class="speaker-slot"></div>
+    </div>
+
+    <!-- Phone Screen Content -->
+    <div class="phone-screen" id="phone-screen">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span>09:41</span>
+        <div class="flex items-center gap-1.5">
+          <span>5G</span>
+          <span>📶</span>
+          <span>98%</span>
+        </div>
+      </div>
+
+      <!-- SCENE 1: LINE OpenChat (Pig Butchering Pitch) -->
+      <div id="screen-chat" class="flex-1 flex flex-col p-3 bg-slate-900 text-xs">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-pink-600 flex items-center justify-center text-white font-bold text-xs">S</div>
+            <div>
+              <div class="text-white font-bold">Sarah (Investment Coach)</div>
+              <div class="text-slate-400 text-[10px]">LINE OpenChat · Online</div>
+            </div>
+          </div>
+          <span class="text-slate-500 text-[10px]">LINE v14.2</span>
+        </div>
+
+        <div class="flex-1 space-y-2.5 overflow-y-auto pr-1" id="chat-messages">
+          <div class="bg-slate-800 p-2.5 rounded-xl rounded-tl-none max-w-[85%] text-slate-200">
+            สวัสดีค่ะคุณเจมส์! ดีใจมากที่ได้คุยกันนะคะ 😊
+          </div>
+          <div class="bg-slate-800 p-2.5 rounded-xl rounded-tl-none max-w-[85%] text-slate-200">
+            จำที่ซาร่าเล่าเรื่องแพลตฟอร์มเทรดทองคำ <strong class="text-yellow-400">AlphaGold Securities</strong> ได้ไหมคะ? การันตีผลตอบแทน 40% ต่อเดือน ปลอดภัยไม่มีความเสี่ยงเลยค่ะ
+          </div>
+          <div class="bg-blue-600 p-2.5 rounded-xl rounded-tr-none max-w-[85%] ml-auto text-white">
+            น่าสนใจครับ ต้องเริ่มยังไงครับ?
+          </div>
+          <div class="bg-slate-800 p-2.5 rounded-xl rounded-tl-none max-w-[85%] text-slate-200">
+            โหลดแอปเทรดได้เลยค่ะ: <span class="text-blue-400 underline">alphagold-th.com/trading.apk</span><br>
+            แล้วโอนเปิดพอร์ต 10,000 บาท เข้าบัญชี SCB: <strong class="text-red-400">1234567890</strong> นะคะ
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 flex gap-2">
+          <button onclick="triggerChatScan()" class="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow">
+            ⚡ Run Fast Node Reading (AccessibilityService)
+          </button>
+        </div>
+      </div>
+
+      <!-- SCENE 2: Incoming Call Screening -->
+      <div id="screen-call-screen" class="hidden flex-1 flex flex-col items-center justify-between p-6 bg-slate-950 text-center">
+        <div class="mt-8">
+          <div class="w-20 h-20 rounded-full bg-red-950/80 border-2 border-red-500 flex items-center justify-center text-4xl mx-auto mb-4 animate-pulse">
+            📞
+          </div>
+          <div class="text-red-400 text-xs font-bold uppercase tracking-wider">Scam Shield Pre-Call Interception</div>
+          <div class="text-white text-2xl font-bold mt-1">089-123-4567</div>
+          <div class="text-red-300 text-xs mt-2 bg-red-900/40 p-2 rounded-lg border border-red-700/50">
+            🚨 CRITICAL RISK: AlphaGold Cold-Call Line<br>Known fake broker impersonating licensed firm
+          </div>
+        </div>
+
+        <div class="w-full space-y-3 mb-4">
+          <button onclick="rejectIncomingCall()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold shadow-lg">
+            ❌ Block &amp; Reject Call (Auto-Screening)
+          </button>
+          <button onclick="answerAndActivate3Way()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg">
+            🛡️ Answer &amp; Activate 3-Way Shield
+          </button>
+        </div>
+      </div>
+
+      <!-- SCENE 3: 3-Way Call Defense (Cloud PBX Listener Bot) -->
+      <div id="screen-call-3way" class="hidden flex-1 flex flex-col p-4 bg-slate-950 text-xs">
+        <div class="text-center pb-2 border-b border-slate-800 mb-2">
+          <div class="text-blue-400 font-bold">Cloud PBX 3-Way Conference</div>
+          <div class="text-slate-400 text-[10px]">User ↔ Scammer ↔ Scam Shield AI Bot</div>
+        </div>
+
+        <!-- Participants -->
+        <div class="grid grid-cols-3 gap-2 my-2 text-center">
+          <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+            <div class="text-sm">👤</div>
+            <div class="text-[10px] text-slate-300 font-bold">You</div>
+          </div>
+          <div class="p-2 rounded-lg bg-slate-900 border border-red-900">
+            <div class="text-sm">📞</div>
+            <div class="text-[10px] text-red-400 font-bold">Scammer</div>
+          </div>
+          <div class="p-2 rounded-lg bg-blue-950 border border-blue-600">
+            <div class="text-sm">🛡️</div>
+            <div class="text-[10px] text-blue-300 font-bold">AI Bot</div>
+          </div>
+        </div>
+
+        <!-- Audio Waveform Visualizer -->
+        <div class="flex items-center justify-center gap-1.5 h-10 my-2 bg-slate-900/60 rounded-lg">
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div>
+          <span class="text-[10px] text-sky-400 font-mono ml-2">Streaming STT (Volatile RAM)</span>
+        </div>
+
+        <!-- Live Transcribed Feed -->
+        <div class="flex-1 bg-slate-900 p-2.5 rounded-lg border border-slate-800 overflow-y-auto space-y-1.5 font-mono text-[11px]" id="call-transcript-log">
+          <div class="text-slate-400">[Caller] Good afternoon! Calling from AlphaGold Securities with 40% guaranteed returns.</div>
+          <div class="text-red-400">🚩 [NLP] Flagged: GUARANTEED_RETURN (+25)</div>
+          <div class="text-slate-400">[Caller] We have zero risk strategies. Only 5 slots left!</div>
+          <div class="text-red-400">🚩 [NLP] Flagged: ZERO_RISK_CLAIM (+20), FOMO_PRESSURE (+15)</div>
+        </div>
+
+        <button onclick="disconnectPBX()" class="mt-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">
+          ⏹️ Disconnect Bot &amp; Wipe Audio
+        </button>
+      </div>
+
+      <!-- SCENE 4: Mobile Banking Transfer Brake -->
+      <div id="screen-banking" class="hidden flex-1 flex flex-col p-4 bg-emerald-950 text-xs relative">
+        <div class="text-center pb-2 border-b border-emerald-800 mb-2">
+          <div class="text-emerald-400 font-bold text-sm">K PLUS (KasikornBank)</div>
+          <div class="text-emerald-200/70 text-[10px]">Transfer Funds Screen</div>
+        </div>
+
+        <div class="space-y-3 my-auto p-4 bg-emerald-900/40 rounded-xl border border-emerald-700/40">
+          <div class="text-slate-300 text-[11px]">To Account Number:</div>
+          <div class="text-white font-mono text-base font-bold">1234567890 (SCB)</div>
+          <div class="text-slate-300 text-[11px]">Amount:</div>
+          <div class="text-white font-mono text-xl font-bold">฿ 10,000.00</div>
+          <button class="w-full py-2.5 bg-emerald-600 text-white font-bold rounded-lg mt-2">
+            Confirm Transfer
+          </button>
+        </div>
+
+        <!-- The Transfer Brake Overlay -->
+        <div id="banking-brake-overlay" class="absolute inset-x-0 bottom-0 bg-red-600 p-4 rounded-t-2xl shadow-2xl text-white transform transition-transform duration-300">
+          <div class="flex items-center gap-2 mb-1.5 font-bold text-sm">
+            <span>🛑</span>
+            <span>TRANSFER BRAKE ACTIVE</span>
+          </div>
+          <p class="text-[11px] text-red-100 leading-relaxed mb-3">
+            AccessibilityService detected you switched from an investment chat to transfer to <strong>1234567890</strong>. This is a flagged <strong>MULE ACCOUNT (บัญชีม้า)</strong>!
+          </p>
+          <div class="flex gap-2">
+            <button onclick="cancelTransferAction()" class="flex-1 py-2 bg-white text-red-700 font-bold rounded-lg text-xs shadow">
+              CANCEL TRANSFER
+            </button>
+            <button onclick="dismissBrakeAction()" class="px-3 py-2 bg-red-800 text-red-200 rounded-lg text-[10px]">
+              Ignore
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 5: Direct Search Portal -->
+      <div id="screen-search" class="hidden flex-1 flex flex-col p-3 bg-slate-900 text-xs">
+        <div class="text-center pb-2 border-b border-slate-800 mb-3">
+          <div class="text-blue-400 font-bold text-sm">🔍 Before You Invest</div>
+          <div class="text-slate-400 text-[10px]">Anti-SEO Corporate Authenticity Portal</div>
+        </div>
+
+        <div class="flex gap-1.5 mb-3">
+          <input type="text" id="sim-search-input" value="AlphaGold Securities" placeholder="Company, domain, or bank account" class="flex-1 px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs outline-none">
+          <button onclick="runSimSearch()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs">
+            Check
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto space-y-2 pr-1" id="sim-search-results">
+          <!-- Dynamic Scorecard Rendered Here -->
+        </div>
+      </div>
+
+      <!-- Floating Assistive Bubble (SYSTEM_ALERT_WINDOW simulation) -->
+      <div id="floating-bubble" class="floating-bubble border-2 border-white" style="bottom: 120px; right: 20px; background: #22c55e;" onclick="toggleTrustCard()">
+        <span class="text-xl">🛡️</span>
+        <div id="bubble-risk-badge" class="bubble-badge" style="display:none">0%</div>
+      </div>
+
+      <!-- Expanded Trust Card & Warning Overlay -->
+      <div id="trust-card-overlay" class="hidden absolute inset-x-3 bottom-14 p-3.5 bg-slate-800/95 backdrop-blur-md rounded-2xl border border-slate-700 shadow-2xl z-90 text-xs">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-bold text-white text-sm" id="overlay-company-name">Entity Authenticity</div>
+          <span id="overlay-verdict-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600 text-white">CRITICAL 100%</span>
+        </div>
+        <div class="p-2 bg-red-950/60 border border-red-800/50 rounded-lg text-red-200 text-[11px] mb-2.5" id="overlay-recommendation">
+          🚨 CRITICAL ALERT: Unlicensed entity found in SEC Thailand Alert List. Do NOT transfer funds.
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 mb-2.5 text-center">
+          <div class="p-1.5 bg-slate-900 rounded border border-slate-700">
+            <div class="text-[9px] text-slate-400">Regulatory</div>
+            <div class="font-bold text-red-400" id="overlay-p1">40/40</div>
+          </div>
+          <div class="p-1.5 bg-slate-900 rounded border border-slate-700">
+            <div class="text-[9px] text-slate-400">SEO / Age</div>
+            <div class="font-bold text-orange-400" id="overlay-p2">25/30</div>
+          </div>
+          <div class="p-1.5 bg-slate-900 rounded border border-slate-700">
+            <div class="text-[9px] text-slate-400">Behavioral</div>
+            <div class="font-bold text-red-400" id="overlay-p3">30/30</div>
+          </div>
+        </div>
+        <div class="text-[10px] text-amber-300 mb-3" id="overlay-flags">
+          🚩 Guaranteed Return, FOMO Pressure, Young Domain (&lt;6mo), Mule Account
+        </div>
+        <div class="flex gap-2">
+          <button onclick="triggerScreenOcr()" class="flex-1 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-[11px]">
+            📸 MediaProjection OCR
+          </button>
+          <button onclick="toggleTrustCard()" class="px-3 py-1.5 bg-slate-700 text-slate-300 rounded-lg text-[11px]">
+            Dismiss
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Phone Navigation Bar -->
+    <div class="nav-bar">
+      <div class="nav-indicator"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentScenario = 'chat';
+  let isCardExpanded = false;
+
+  function setScenario(scen) {
+    currentScenario = scen;
+    ['chat', 'call_screen', 'call_3way', 'banking', 'search'].forEach(s => {
+      const el = document.getElementById('screen-' + s);
+      if (el) el.classList.add('hidden');
+    });
+
+    const activeEl = document.getElementById('screen-' + scen);
+    if (activeEl) activeEl.classList.remove('hidden');
+
+    // Trigger state changes
+    if (scen === 'banking_brake') {
+      document.getElementById('banking-brake-overlay').classList.remove('translate-y-full');
+      updateBubbleColor(100, 'CRITICAL');
+    } else if (scen === 'call_screen') {
+      updateBubbleColor(100, 'CRITICAL');
+    } else if (scen === 'chat') {
+      updateBubbleColor(0, 'SAFE');
+    } else if (scen === 'search') {
+      runSimSearch();
+    }
+  }
+
+  function updateBubbleColor(score, level) {
+    const bubble = document.getElementById('floating-bubble');
+    const badge = document.getElementById('bubble-risk-badge');
+    
+    let color = '#22c55e'; // Green
+    if (score >= 70 || level === 'CRITICAL' || level === 'critical') {
+      color = '#ef4444'; // Red
+    } else if (score >= 40 || level === 'suspicious') {
+      color = '#f97316'; // Orange
+    } else if (score >= 15 || level === 'caution') {
+      color = '#eab308'; // Yellow
+    }
+
+    bubble.style.background = color;
+    if (score > 0) {
+      badge.style.display = 'block';
+      badge.textContent = score + '%';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function toggleTrustCard() {
+    const card = document.getElementById('trust-card-overlay');
+    isCardExpanded = !isCardExpanded;
+    if (isCardExpanded) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  }
+
+  async function triggerChatScan() {
+    // Send text to real backend
+    const text = "สวัสดีค่ะคุณเจมส์ จำที่เล่าเรื่อง AlphaGold Securities รับประกันผลตอบแทน 40% ไม่มีเสี่ยง โหลดแอป alphagold-th.com/trading.apk โอนเข้าบัญชี 1234567890";
+    try {
+      const res = await fetch('/api/v1/verify/text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      updateBubbleColor(data.riskScore, data.riskLevel);
+      
+      // Update overlay contents
+      document.getElementById('overlay-company-name').textContent = "AlphaGold Securities";
+      document.getElementById('overlay-verdict-badge').textContent = `${data.riskLevel.toUpperCase()} ${data.riskScore}%`;
+      document.getElementById('overlay-flags').textContent = "🚩 Flags: " + data.flags.map(f => f.flag).join(', ');
+      
+      toggleTrustCard();
+    } catch(e) {
+      alert("Backend analysis: " + e.message);
+    }
+  }
+
+  function rejectIncomingCall() {
+    alert("CallScreeningService: Call from 0891234567 blocked & hung up. Risk 100%.");
+    setScenario('chat');
+  }
+
+  function answerAndActivate3Way() {
+    setScenario('call_3way');
+    updateBubbleColor(100, 'CRITICAL');
+  }
+
+  function disconnectPBX() {
+    alert("Cloud PBX Bot disconnected. All ephemeral 3-way audio data wiped from RAM.");
+    setScenario('chat');
+  }
+
+  function cancelTransferAction() {
+    alert("Transfer cancelled! You saved ฿10,000 from entering a verified mule account.");
+    setScenario('chat');
+  }
+
+  function dismissBrakeAction() {
+    document.getElementById('banking-brake-overlay').classList.add('translate-y-full');
+  }
+
+  function triggerScreenOcr() {
+    alert("MediaProjection + Google ML Kit OCR scanned screen pixels locally. Zero images sent outside device.");
+    toggleTrustCard();
+  }
+
+  async function runSimSearch() {
+    const q = document.getElementById('sim-search-input').value.trim() || 'AlphaGold Securities';
+    const container = document.getElementById('sim-search-results');
+    container.innerHTML = '<div class="text-slate-400 text-center py-4">Querying SEC Whitelist & MongoDB Blacklist...</div>';
+    
+    try {
+      const res = await fetch('/api/v1/verify/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: q })
+      });
+      const data = await res.json();
+
+      const isCrit = data.riskScore >= 70;
+      container.innerHTML = `
+        <div class="p-3 bg-slate-800 rounded-xl border ${isCrit ? 'border-red-600' : 'border-emerald-600'}">
+          <div class="flex justify-between items-start mb-1.5">
+            <div class="font-bold text-white">${data.query}</div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isCrit ? 'bg-red-600' : 'bg-emerald-600'} text-white">
+              ${data.verdict.toUpperCase()} ${data.riskScore}%
+            </span>
+          </div>
+          <div class="p-2 rounded bg-slate-900 text-[10px] ${isCrit ? 'text-red-300' : 'text-emerald-300'} mb-2">
+            ${data.recommendation?.message || ''}
+          </div>
+          <div class="text-[10px] text-slate-400 space-y-1">
+            <div>🏛️ Regulatory: <strong>${data.scamDatabaseMatches?.length ? 'BLACKLISTED' : 'Not in alert list'}</strong></div>
+            <div>🌐 Domain Check: <strong>${data.domainAnalysis?.domain || 'N/A'} (Age: ${data.domainAnalysis?.ageMonths ?? 'N/A'}mo)</strong></div>
+          </div>
+        </div>
+      `;
+      updateBubbleColor(data.riskScore, data.verdict);
+    } catch(e) {
+      container.innerHTML = `<div class="text-red-400 text-center py-4">Error: ${e.message}</div>`;
+    }
+  }
+
+  // Draggable Bubble Implementation within phone chassis
+  (function initDraggableBubble() {
+    const bubble = document.getElementById('floating-bubble');
+    const screen = document.getElementById('phone-screen');
+    let isDragging = false;
+    let startX, startY, initialLeft, initialTop;
+
+    bubble.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      const rect = bubble.getBoundingClientRect();
+      const parentRect = screen.getBoundingClientRect();
+      initialLeft = rect.left - parentRect.left;
+      initialTop = rect.top - parentRect.top;
+      e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      let newLeft = initialLeft + dx;
+      let newTop = initialTop + dy;
+
+      const maxLeft = screen.clientWidth - bubble.clientWidth;
+      const maxTop = screen.clientHeight - bubble.clientHeight;
+
+      newLeft = Math.max(10, Math.min(newLeft, maxLeft - 10));
+      newTop = Math.max(30, Math.min(newTop, maxTop - 20));
+
+      bubble.style.left = newLeft + 'px';
+      bubble.style.top = newTop + 'px';
+      bubble.style.right = 'auto';
+      bubble.style.bottom = 'auto';
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+  })();
+</script>
+</body>
+</html>

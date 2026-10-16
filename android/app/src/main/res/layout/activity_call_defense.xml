@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F172A"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📞 Call Defense Bridge"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cloud PBX 3-Way Merging &amp; Real-Time STT AI Listener Bot"
+        android:textColor="#94A3B8"
+        android:textSize="12sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Call Status Card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1E293B"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_call_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🟢 Listener Bot Active"
+                android:textColor="#22C55E"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_call_risk_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#EF4444"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="CRITICAL 100%"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_caller_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Caller: 0891234567 (Known Fake Gold Broker)"
+            android:textColor="#CBD5E1"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Real-Time Transcript Stream -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LIVE TRANSCRIBED FEED (EPHEMERAL RAM ONLY)"
+        android:textColor="#94A3B8"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#0A1628"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/tv_live_transcript"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="[Caller] We guarantee 40% returns on gold trading with zero risk.\n\n[NLP Engine] 🚩 Flagged: GUARANTEED_RETURN (+25), ZERO_RISK_CLAIM (+20)\n\n[Caller] Join our VIP Telegram group right now before slots close!\n\n[NLP Engine] 🚩 Flagged: FOMO_PRESSURE (+15), PRIVATE_GROUP_LURE (+20)\n\n[Scam Shield] Risk level hit 100% Critical! High-priority alert triggered."
+            android:textColor="#93C5FD"
+            android:textSize="12sp"
+            android:lineSpacingExtra="4dp" />
+    </ScrollView>
+
+    <!-- Action Buttons -->
+    <Button
+        android:id="@+id/btn_trigger_merge"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:backgroundTint="#2563EB"
+        android:text="🔀 Merge Calls (Conference PBX)"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/btn_disconnect_bot"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:backgroundTint="#DC2626"
+        android:text="⏹️ Disconnect Bot &amp; Wipe Audio RAM" />
+
+</LinearLayout>

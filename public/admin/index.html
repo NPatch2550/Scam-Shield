@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scam Shield – Admin Portal</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; }
+    .risk-critical { color: #ef4444; }
+    .risk-suspicious { color: #f97316; }
+    .risk-caution { color: #eab308; }
+    .risk-safe { color: #22c55e; }
+    .badge { padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .badge-critical { background: #7f1d1d; color: #fca5a5; }
+    .badge-pending { background: #1e3a5f; color: #93c5fd; }
+    .badge-approved { background: #14532d; color: #86efac; }
+    .badge-rejected { background: #3f1f1f; color: #fca5a5; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+    .btn { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-green { background: #16a34a; color: #fff; }
+    .btn-red { background: #dc2626; color: #fff; }
+    .btn-blue { background: #2563eb; color: #fff; }
+    .btn-gray { background: #475569; color: #fff; }
+    input, select, textarea { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; border-radius: 6px; padding: 8px 12px; width: 100%; font-size: 13px; }
+    .stat-card { background: linear-gradient(135deg, #1e293b, #162032); border: 1px solid #334155; border-radius: 12px; padding: 20px; }
+    .tab { padding: 8px 16px; cursor: pointer; border-radius: 6px; font-size: 13px; font-weight: 500; }
+    .tab.active { background: #2563eb; color: #fff; }
+    .tab:not(.active) { color: #94a3b8; }
+    .tab:not(.active):hover { background: #1e293b; color: #e2e8f0; }
+    .scam-row:hover { background: #253350; }
+    .scam-row { transition: background 0.1s; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Header -->
+<header class="border-b border-slate-700 px-6 py-4 flex items-center justify-between sticky top-0 z-50" style="background:#0f172a;">
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:linear-gradient(135deg,#2563eb,#7c3aed)">🛡️</div>
+    <div>
+      <div class="text-white font-bold text-base">Scam Shield</div>
+      <div class="text-slate-400 text-xs">Admin Portal · Anti-Investment Scam System</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <div id="connection-status" class="flex items-center gap-2 text-xs text-slate-400">
+      <span class="w-2 h-2 rounded-full bg-slate-500"></span> Disconnected
+    </div>
+    <div class="flex items-center gap-2">
+      <input type="text" id="api-key-input" placeholder="Admin API Key" value="scamshield-admin-2024"
+             class="text-xs px-3 py-1.5 rounded" style="width:200px;background:#1e293b;border:1px solid #334155;" />
+      <button class="btn btn-blue text-xs" onclick="connectToAPI()">Connect</button>
+    </div>
+  </div>
+</header>
+
+<!-- Public Internet Access Banner -->
+<div class="bg-gradient-to-r from-blue-900/60 to-indigo-900/60 border-b border-blue-700/40 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs gap-2">
+  <div class="flex items-center gap-2">
+    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+    <span class="text-blue-200 font-semibold">Public Internet DNS Online:</span>
+    <a href="https://royalty-deutsch-fantasy-consult.trycloudflare.com/app" target="_blank" class="text-emerald-300 underline font-mono hover:text-emerald-200">
+      https://royalty-deutsch-fantasy-consult.trycloudflare.com/app
+    </a>
+  </div>
+  <div class="flex items-center gap-2">
+    <span class="text-slate-400">Accessible worldwide</span>
+    <button onclick="navigator.clipboard.writeText('https://royalty-deutsch-fantasy-consult.trycloudflare.com/app'); alert('Public URL copied to clipboard!')" class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium">📋 Copy App URL</button>
+  </div>
+</div>
+
+<div class="flex" style="height:calc(100vh - 65px)">
+
+  <!-- Sidebar -->
+  <nav class="w-56 border-r border-slate-700 p-4 flex flex-col gap-1 overflow-y-auto flex-shrink-0">
+    <button class="tab active text-left" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+    <button class="tab text-left" onclick="showTab('reports',this)">📋 Reports Queue</button>
+    <button class="tab text-left" onclick="showTab('scam-db',this)">📛 Scam Database</button>
+    <button class="tab text-left" onclick="showTab('legit-db',this)">✅ Verified Companies</button>
+    <button class="tab text-left" onclick="showTab('call-test',this)">📞 Call Analyzer</button>
+    <button class="tab text-left" onclick="showTab('search-test',this)">🔍 Trust Search</button>
+    <button class="tab text-left text-sky-400 font-semibold" onclick="showTab('phone-sim',this)">📱 Android Simulator</button>
+    <div class="mt-auto pt-4 border-t border-slate-700 text-xs text-slate-500">
+      <div class="mb-1">API Base URL:</div>
+      <input type="text" id="base-url" value="http://localhost:3000" class="text-xs px-2 py-1" style="width:100%" />
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto p-6">
+
+    <!-- Dashboard Tab -->
+    <div id="tab-dashboard" class="tab-content">
+      <h2 class="text-white text-xl font-bold mb-6">📊 System Dashboard</h2>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-5 gap-4 mb-8" id="stats-grid">
+        <div class="stat-card text-center">
+          <div class="text-3xl font-bold text-red-400" id="stat-scam">–</div>
+          <div class="text-slate-400 text-xs mt-1">Scam Entities</div>
+        </div>
+        <div class="stat-card text-center">
+          <div class="text-3xl font-bold text-green-400" id="stat-legit">–</div>
+          <div class="text-slate-400 text-xs mt-1">Verified Companies</div>
+        </div>
+        <div class="stat-card text-center">
+          <div class="text-3xl font-bold text-blue-400" id="stat-pending">–</div>
+          <div class="text-slate-400 text-xs mt-1">Pending Reports</div>
+        </div>
+        <div class="stat-card text-center">
+          <div class="text-3xl font-bold text-emerald-400" id="stat-approved">–</div>
+          <div class="text-slate-400 text-xs mt-1">Approved Reports</div>
+        </div>
+        <div class="stat-card text-center">
+          <div class="text-3xl font-bold text-yellow-400 pulse" id="stat-sessions">–</div>
+          <div class="text-slate-400 text-xs mt-1">Active Call Sessions</div>
+        </div>
+      </div>
+
+      <!-- Category & Type Breakdown -->
+      <div class="grid grid-cols-2 gap-6 mb-8">
+        <div class="card p-5">
+          <h3 class="text-white font-semibold mb-4">Scam Categories</h3>
+          <div id="category-breakdown" class="space-y-2"></div>
+        </div>
+        <div class="card p-5">
+          <h3 class="text-white font-semibold mb-4">Entity Types</h3>
+          <div id="type-breakdown" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- Recent Pending Reports -->
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-white font-semibold">Recent Pending Reports</h3>
+          <button class="btn btn-blue text-xs" onclick="showTab('reports', document.querySelector('[onclick*=\"reports\"]'))">View All →</button>
+        </div>
+        <div id="recent-reports" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- Reports Queue Tab -->
+    <div id="tab-reports" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-white text-xl font-bold">📋 Community Reports Queue</h2>
+        <div class="flex items-center gap-3">
+          <select id="report-status-filter" onchange="loadReports()" class="text-xs py-1.5 px-3 rounded" style="width:130px">
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button class="btn btn-blue text-xs" onclick="loadReports()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div id="reports-list" class="space-y-3"></div>
+    </div>
+
+    <!-- Scam Database Tab -->
+    <div id="tab-scam-db" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-white text-xl font-bold">📛 Scam Entity Database</h2>
+        <div class="flex items-center gap-3">
+          <select id="scam-type-filter" onchange="loadScamEntities()" class="text-xs py-1.5 px-3 rounded" style="width:140px">
+            <option value="">All Types</option>
+            <option value="company">Company</option>
+            <option value="domain">Domain</option>
+            <option value="phone">Phone</option>
+            <option value="bank_account">Bank Account</option>
+            <option value="crypto_wallet">Crypto Wallet</option>
+            <option value="telegram_group">Telegram</option>
+            <option value="apk_url">APK URL</option>
+          </select>
+          <button class="btn btn-blue text-xs" onclick="loadScamEntities()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div id="scam-entities-list" class="space-y-2"></div>
+    </div>
+
+    <!-- Legit Companies Tab -->
+    <div id="tab-legit-db" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-white text-xl font-bold">✅ Verified Companies Whitelist</h2>
+        <button class="btn btn-blue text-xs" onclick="loadLegitCompanies()">🔄 Refresh</button>
+      </div>
+      <div id="legit-companies-list" class="space-y-3"></div>
+    </div>
+
+    <!-- Call Analyzer Test Tab -->
+    <div id="tab-call-test" class="tab-content hidden">
+      <h2 class="text-white text-xl font-bold mb-6">📞 Call Analyzer (Live Test)</h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="card p-5">
+          <h3 class="text-white font-semibold mb-4">Start Call Session</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-slate-400 text-xs block mb-1">Caller Number</label>
+              <input type="text" id="caller-number" value="0891234567" placeholder="e.g. 0891234567" />
+            </div>
+            <div>
+              <label class="text-slate-400 text-xs block mb-1">Device ID</label>
+              <input type="text" id="device-id" value="demo-device-001" />
+            </div>
+            <button class="btn btn-green w-full" onclick="startCallSession()">▶ Start 3-Way Session</button>
+          </div>
+          <div id="session-info" class="mt-4 hidden">
+            <div class="text-xs text-slate-400 mb-2">Session ID:</div>
+            <code class="text-xs text-blue-400 break-all" id="session-id-display"></code>
+          </div>
+        </div>
+        <div class="card p-5">
+          <h3 class="text-white font-semibold mb-4">Send Transcript Chunk</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-slate-400 text-xs block mb-1">Speaker</label>
+              <select id="chunk-speaker" class="text-xs py-2">
+                <option value="caller">Caller (Scammer)</option>
+                <option value="user">User</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-slate-400 text-xs block mb-1">Transcript Text</label>
+              <textarea id="chunk-text" rows="4" placeholder="Paste scam transcript here...">We guarantee 40% return per month with zero risk. Join our VIP Telegram group now – limited slots only!</textarea>
+            </div>
+            <button class="btn btn-blue w-full" onclick="sendChunk()">⚡ Analyze Chunk</button>
+          </div>
+        </div>
+      </div>
+      <!-- Risk Score Display -->
+      <div class="card p-5 mt-6" id="risk-display" style="display:none">
+        <h3 class="text-white font-semibold mb-4">📊 Real-Time Risk Analysis</h3>
+        <div class="grid grid-cols-4 gap-4 mb-4">
+          <div class="text-center">
+            <div class="text-4xl font-bold" id="risk-score-num">0</div>
+            <div class="text-slate-400 text-xs mt-1">Risk Score</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold" id="risk-level-display">SAFE</div>
+            <div class="text-slate-400 text-xs mt-1">Risk Level</div>
+          </div>
+          <div class="col-span-2">
+            <div class="text-slate-400 text-xs mb-1">Risk Meter</div>
+            <div class="w-full bg-slate-700 rounded-full h-4">
+              <div id="risk-bar" class="h-4 rounded-full transition-all duration-500" style="width:0%;background:#22c55e"></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <div class="text-slate-400 text-xs mb-2">🚩 Detected Flags</div>
+            <div id="flags-list" class="space-y-1"></div>
+          </div>
+          <div>
+            <div class="text-slate-400 text-xs mb-2">🔍 Extracted Entities</div>
+            <div id="entities-list" class="space-y-1"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Preset Scenarios -->
+      <div class="card p-5 mt-4">
+        <h3 class="text-white font-semibold mb-3">🎭 Test Scenarios (Click to fill)</h3>
+        <div class="grid grid-cols-3 gap-3">
+          <button class="btn btn-gray text-xs text-left p-3" style="height:auto" onclick="fillScenario('pig')">
+            <div class="font-semibold mb-1">🐷 Pig Butchering</div>
+            <div class="text-slate-300 text-xs">Romance → investment platform pitch</div>
+          </button>
+          <button class="btn btn-gray text-xs text-left p-3" style="height:auto" onclick="fillScenario('broker')">
+            <div class="font-semibold mb-1">📊 Fake Broker</div>
+            <div class="text-slate-300 text-xs">Gold/forex guaranteed returns cold call</div>
+          </button>
+          <button class="btn btn-gray text-xs text-left p-3" style="height:auto" onclick="fillScenario('task')">
+            <div class="font-semibold mb-1">💼 Task Scam</div>
+            <div class="text-slate-300 text-xs">Click jobs with deposit requirement</div>
+          </button>
+          <button class="btn btn-gray text-xs text-left p-3" style="height:auto" onclick="fillScenario('withdrawal')">
+            <div class="font-semibold mb-1">💸 Withdrawal Extortion</div>
+            <div class="text-slate-300 text-xs">"Pay tax fee to unlock profits"</div>
+          </button>
+          <button class="btn btn-gray text-xs text-left p-3" style="height:auto" onclick="fillScenario('apk')">
+            <div class="font-semibold mb-1">📱 APK Sideload</div>
+            <div class="text-slate-300 text-xs">Fake trading app download request</div>
+          </button>
+          <button class="btn btn-gray text-xs text-left p-3" style="height:auto" onclick="fillScenario('pii')">
+            <div class="font-semibold mb-1">🆔 PII Guard Test</div>
+            <div class="text-slate-300 text-xs">User about to share national ID</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Search Tab -->
+    <div id="tab-search-test" class="tab-content hidden">
+      <h2 class="text-white text-xl font-bold mb-6">🔍 "Before You Invest" Trust Search</h2>
+      <div class="card p-5 mb-6">
+        <div class="flex gap-3">
+          <input type="text" id="search-query" placeholder="Company name, URL, phone, or bank account..."
+                 class="flex-1" onkeydown="if(event.key==='Enter')runSearch()" />
+          <select id="search-type" class="text-xs" style="width:130px">
+            <option value="">Auto-detect</option>
+            <option value="company">Company Name</option>
+            <option value="domain">Domain/URL</option>
+            <option value="phone">Phone Number</option>
+            <option value="bank">Bank Account</option>
+          </select>
+          <button class="btn btn-blue px-6" onclick="runSearch()">🔍 Search</button>
+        </div>
+        <!-- Quick test buttons -->
+        <div class="flex flex-wrap gap-2 mt-3">
+          <span class="text-slate-400 text-xs self-center">Try:</span>
+          <button class="text-xs px-3 py-1 rounded-full border border-slate-600 text-slate-300 hover:border-red-500 hover:text-red-400 transition-colors" onclick="quickSearch('AlphaGold Securities')">AlphaGold Securities</button>
+          <button class="text-xs px-3 py-1 rounded-full border border-slate-600 text-slate-300 hover:border-red-500 hover:text-red-400 transition-colors" onclick="quickSearch('cryptovaultpro.io')">cryptovaultpro.io</button>
+          <button class="text-xs px-3 py-1 rounded-full border border-slate-600 text-slate-300 hover:border-red-500 hover:text-red-400 transition-colors" onclick="quickSearch('1234567890')">1234567890 (mule acc)</button>
+          <button class="text-xs px-3 py-1 rounded-full border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition-colors" onclick="quickSearch('KasikornBank')">KasikornBank ✅</button>
+          <button class="text-xs px-3 py-1 rounded-full border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition-colors" onclick="quickSearch('Bitkub Exchange')">Bitkub Exchange ✅</button>
+          <button class="text-xs px-3 py-1 rounded-full border border-slate-600 text-slate-300 hover:border-yellow-500 hover:text-yellow-400 transition-colors" onclick="quickSearch('Global Forex Masters Thailand')">Global Forex Masters</button>
+        </div>
+      </div>
+      <div id="search-result" class="hidden"></div>
+    </div>
+
+    <!-- Android Simulator Tab -->
+    <div id="tab-phone-sim" class="tab-content hidden h-full">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-white text-xl font-bold">📱 Android Device &amp; Overlay Simulator</h2>
+          <p class="text-slate-400 text-xs">Test Floating Assistive Bubble, CallScreeningService, 3-Way Cloud PBX Bridge, and Mobile Banking Brake</p>
+        </div>
+        <a href="/admin/phone-simulator.html" target="_blank" class="btn btn-blue text-xs flex items-center gap-1">
+          Open in New Window ↗
+        </a>
+      </div>
+      <div class="w-full rounded-2xl overflow-hidden border border-slate-700 bg-slate-950" style="height: calc(100vh - 170px);">
+        <iframe src="/admin/phone-simulator.html" class="w-full h-full border-0"></iframe>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let API_BASE = 'http://localhost:3000';
+  let ADMIN_KEY = 'scamshield-admin-2024';
+  let currentSessionId = null;
+  let activeTab = 'dashboard';
+
+  function getBase() { return document.getElementById('base-url').value || API_BASE; }
+  function getKey() { return document.getElementById('api-key-input').value || ADMIN_KEY; }
+
+  function showTab(tab, el) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.remove('hidden');
+    if (el) el.classList.add('active');
+    activeTab = tab;
+    if (tab === 'dashboard') loadDashboard();
+    else if (tab === 'reports') loadReports();
+    else if (tab === 'scam-db') loadScamEntities();
+    else if (tab === 'legit-db') loadLegitCompanies();
+  }
+
+  async function apiFetch(path, opts = {}) {
+    const url = getBase() + path;
+    const headers = { 'Content-Type': 'application/json', 'x-admin-key': getKey(), ...opts.headers };
+    const res = await fetch(url, { ...opts, headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async function connectToAPI() {
+    try {
+      await apiFetch('/health');
+      const el = document.getElementById('connection-status');
+      el.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-400"></span> Connected';
+      el.className = 'flex items-center gap-2 text-xs text-green-400';
+      loadDashboard();
+    } catch(e) {
+      const el = document.getElementById('connection-status');
+      el.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-400"></span> Error: ' + e.message;
+      el.className = 'flex items-center gap-2 text-xs text-red-400';
+    }
+  }
+
+  async function loadDashboard() {
+    try {
+      const data = await apiFetch('/api/v1/dashboard');
+      document.getElementById('stat-scam').textContent = data.summary.totalScamEntities;
+      document.getElementById('stat-legit').textContent = data.summary.totalVerifiedLegitCompanies;
+      document.getElementById('stat-pending').textContent = data.summary.pendingReports;
+      document.getElementById('stat-approved').textContent = data.summary.approvedReports;
+      document.getElementById('stat-sessions').textContent = data.summary.activeCallSessions;
+
+      const catColors = { pig_butchering:'#a78bfa', fake_broker:'#f87171', crypto_scam:'#fb923c',
+                          mule_account:'#f59e0b', task_scam:'#34d399', phishing:'#60a5fa',
+                          fake_ipo:'#f472b6', clone_site:'#94a3b8' };
+      const catEl = document.getElementById('category-breakdown');
+      const maxCat = Math.max(...data.categoryBreakdown.map(c => c.count));
+      catEl.innerHTML = data.categoryBreakdown.map(c => `
+        <div class="flex items-center gap-2 text-sm">
+          <div class="text-slate-300 w-36 truncate text-xs">${c._id || 'Unknown'}</div>
+          <div class="flex-1 bg-slate-700 rounded h-2">
+            <div class="h-2 rounded" style="width:${(c.count/maxCat*100).toFixed(0)}%;background:${catColors[c._id]||'#64748b'}"></div>
+          </div>
+          <div class="text-slate-400 text-xs w-6 text-right">${c.count}</div>
+        </div>`).join('');
+
+      const typeEl = document.getElementById('type-breakdown');
+      const maxType = Math.max(...data.typeBreakdown.map(c => c.count));
+      typeEl.innerHTML = data.typeBreakdown.map(c => `
+        <div class="flex items-center gap-2">
+          <div class="text-slate-300 w-28 text-xs truncate">${c._id || 'Unknown'}</div>
+          <div class="flex-1 bg-slate-700 rounded h-2">
+            <div class="h-2 rounded bg-blue-500" style="width:${(c.count/maxType*100).toFixed(0)}%"></div>
+          </div>
+          <div class="text-slate-400 text-xs w-6 text-right">${c.count}</div>
+        </div>`).join('');
+
+      const recentEl = document.getElementById('recent-reports');
+      recentEl.innerHTML = data.recentPendingReports.map(r => `
+        <div class="flex items-center gap-3 p-3 rounded-lg" style="background:#253350">
+          <span class="badge badge-pending">${r.entityType}</span>
+          <span class="text-slate-300 text-sm flex-1 truncate">${r.entityValue}</span>
+          <span class="text-slate-400 text-xs">${r.scamCategory}</span>
+          <span class="text-slate-500 text-xs">${new Date(r.createdAt).toLocaleDateString()}</span>
+        </div>`).join('') || '<div class="text-slate-500 text-sm">No pending reports</div>';
+    } catch(e) {
+      console.error('Dashboard load failed:', e);
+    }
+  }
+
+  async function loadReports() {
+    try {
+      const status = document.getElementById('report-status-filter').value;
+      const data = await apiFetch(`/api/v1/admin/reports?status=${status}&limit=30`);
+      const el = document.getElementById('reports-list');
+      el.innerHTML = data.reports.map(r => `
+        <div class="card p-4 scam-row">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="badge badge-${r.status}">${r.status}</span>
+                <span class="badge" style="background:#1e3a5f;color:#93c5fd">${r.entityType}</span>
+                <span class="text-yellow-400 text-xs">${r.scamCategory}</span>
+              </div>
+              <div class="text-white font-medium text-sm">${r.entityValue}</div>
+              <div class="text-slate-400 text-xs mt-1 line-clamp-2">${r.description || ''}</div>
+              ${r.evidenceText ? `<div class="mt-2 p-2 rounded text-xs text-slate-300 italic" style="background:#0f172a">"${r.evidenceText.slice(0,200)}..."</div>` : ''}
+            </div>
+            <div class="flex flex-col gap-2 flex-shrink-0">
+              <div class="text-slate-500 text-xs">${new Date(r.createdAt).toLocaleDateString('th-TH')}</div>
+              ${r.status === 'pending' ? `
+              <button class="btn btn-green text-xs" onclick="approveReport('${r._id}', this)">✅ Approve</button>
+              <button class="btn btn-red text-xs" onclick="rejectReport('${r._id}', this)">❌ Reject</button>` : ''}
+            </div>
+          </div>
+        </div>`).join('') || '<div class="text-slate-500 text-sm text-center py-8">No reports found</div>';
+    } catch(e) { console.error(e); }
+  }
+
+  async function approveReport(id, btn) {
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      await apiFetch(`/api/v1/admin/reports/${id}/approve`, { method: 'PUT', body: JSON.stringify({ adminNotes: 'Verified by admin portal' }) });
+      loadReports();
+    } catch(e) { btn.textContent = 'Error'; }
+  }
+
+  async function rejectReport(id, btn) {
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      await apiFetch(`/api/v1/admin/reports/${id}/reject`, { method: 'PUT', body: JSON.stringify({ adminNotes: 'Rejected - insufficient evidence' }) });
+      loadReports();
+    } catch(e) { btn.textContent = 'Error'; }
+  }
+
+  async function loadScamEntities() {
+    try {
+      const type = document.getElementById('scam-type-filter').value;
+      const data = await apiFetch(`/api/v1/admin/scam-entities${type ? '?type='+type : '?limit=50'}`);
+      const typeIcons = { company:'🏢', domain:'🌐', phone:'📞', bank_account:'🏦', crypto_wallet:'₿', telegram_group:'📱', line_group:'💬', apk_url:'📦' };
+      const catColors = { pig_butchering:'#a78bfa', fake_broker:'#f87171', crypto_scam:'#fb923c', mule_account:'#f59e0b', task_scam:'#34d399', phishing:'#60a5fa', fake_ipo:'#f472b6', clone_site:'#94a3b8' };
+      document.getElementById('scam-entities-list').innerHTML = data.entities.map(e => `
+        <div class="card p-3 scam-row flex items-center gap-3">
+          <span class="text-lg">${typeIcons[e.type]||'⚠️'}</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="text-white text-sm font-medium truncate">${e.displayName || e.value}</span>
+              <span class="text-xs px-2 py-0.5 rounded" style="background:${catColors[e.category]||'#334155'}22;color:${catColors[e.category]||'#94a3b8'};border:1px solid ${catColors[e.category]||'#334155'}44">${e.category}</span>
+              ${e.verified ? '<span class="text-green-400 text-xs">✓ verified</span>' : ''}
+            </div>
+            <div class="text-slate-400 text-xs truncate">${e.value}</div>
+          </div>
+          <div class="text-center flex-shrink-0">
+            <div class="text-red-400 font-bold text-lg">${e.riskScore}%</div>
+            <div class="text-slate-500 text-xs">${e.reportCount} reports</div>
+          </div>
+        </div>`).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadLegitCompanies() {
+    try {
+      const data = await apiFetch('/api/v1/admin/legit-companies');
+      const typeColors = { securities_broker:'#60a5fa', bank:'#34d399', crypto_exchange:'#fb923c', fund_manager:'#a78bfa', other:'#94a3b8' };
+      document.getElementById('legit-companies-list').innerHTML = data.companies.map(c => `
+        <div class="card p-4 scam-row">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-white font-semibold">${c.name}</span>
+                ${c.nameTh ? `<span class="text-slate-400 text-xs">${c.nameTh}</span>` : ''}
+                <span class="text-xs px-2 py-0.5 rounded" style="background:${typeColors[c.licenseType]||'#334155'}22;color:${typeColors[c.licenseType]||'#94a3b8'}">${c.licenseType}</span>
+              </div>
+              <div class="flex items-center gap-4 text-xs text-slate-400">
+                <span>📜 ${c.licenseNumber}</span>
+                <span>🏛️ ${c.regulator}</span>
+                ${c.officialDomain ? `<span>🌐 <a href="https://${c.officialDomain}" target="_blank" class="text-blue-400 hover:underline">${c.officialDomain}</a></span>` : ''}
+                ${c.officialPhone?.length ? `<span>📞 ${c.officialPhone[0]}</span>` : ''}
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-green-400 font-bold">${c.trustScore}%</div>
+              <div class="text-slate-500 text-xs">Trust Score</div>
+              <div class="mt-1 text-xs ${c.isActive ? 'text-green-400' : 'text-red-400'}">${c.isActive ? '● Active' : '● Inactive'}</div>
+            </div>
+          </div>
+        </div>`).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  async function startCallSession() {
+    try {
+      const callerNumber = document.getElementById('caller-number').value;
+      const deviceId = document.getElementById('device-id').value;
+      const data = await apiFetch('/api/v1/call/session/start', { method: 'POST', body: JSON.stringify({ deviceId, callerNumber }) });
+      currentSessionId = data.sessionId;
+      document.getElementById('session-id-display').textContent = data.sessionId;
+      document.getElementById('session-info').classList.remove('hidden');
+      document.getElementById('risk-display').style.display = 'block';
+      updateRiskDisplay({ riskScore: data.callerRisk.riskScore, riskLevel: data.callerRisk.riskLevel, newFlags: [], entitiesDetected: [] });
+      alert(`✅ Session started!\nCaller Pre-Check: ${data.callerRisk.riskLevel.toUpperCase()}`);
+    } catch(e) { alert('Error: ' + e.message); }
+  }
+
+  async function sendChunk() {
+    if (!currentSessionId) { alert('Start a call session first!'); return; }
+    try {
+      const text = document.getElementById('chunk-text').value;
+      const speaker = document.getElementById('chunk-speaker').value;
+      const data = await apiFetch('/api/v1/call/transcript', { method: 'POST', body: JSON.stringify({ sessionId: currentSessionId, speaker, text }) });
+      updateRiskDisplay(data);
+    } catch(e) { alert('Error: ' + e.message); }
+  }
+
+  function updateRiskDisplay(data) {
+    const score = data.riskScore || 0;
+    const level = data.riskLevel || 'safe';
+    const colors = { safe: '#22c55e', caution: '#eab308', suspicious: '#f97316', critical: '#ef4444' };
+    document.getElementById('risk-score-num').textContent = score + '%';
+    document.getElementById('risk-score-num').style.color = colors[level];
+    document.getElementById('risk-level-display').textContent = level.toUpperCase();
+    document.getElementById('risk-level-display').style.color = colors[level];
+    document.getElementById('risk-bar').style.width = score + '%';
+    document.getElementById('risk-bar').style.background = colors[level];
+    document.getElementById('risk-display').style.display = 'block';
+
+    const flagsEl = document.getElementById('flags-list');
+    const newFlags = data.newFlags || data.flags?.map(f => f.flag || f) || [];
+    if (newFlags.length) {
+      flagsEl.innerHTML += newFlags.map(f => `<div class="text-xs px-2 py-1 rounded" style="background:#7f1d1d44;color:#fca5a5;border:1px solid #7f1d1d">🚩 ${f}</div>`).join('');
+    }
+    const piiAlerts = data.piiAlerts || [];
+    if (piiAlerts.length) {
+      flagsEl.innerHTML += piiAlerts.map(p => `<div class="text-xs px-2 py-1 rounded" style="background:#7c2d1244;color:#fdba74;border:1px solid #7c2d12">⚠️ PII: ${p.flag}</div>`).join('');
+    }
+    const entEl = document.getElementById('entities-list');
+    const entities = data.entitiesDetected || [];
+    if (entities.length) {
+      entEl.innerHTML += entities.map(e => `<div class="text-xs px-2 py-1 rounded" style="background:#1e3a5f;color:#93c5fd">🔍 [${e.type}] ${e.value}</div>`).join('');
+    }
+  }
+
+  const SCENARIOS = {
+    pig: { speaker: 'caller', text: "สวัสดีครับ ผมชื่อ James เราเป็นเพื่อนกันบน Instagram จำได้ไหมครับ? ผมอยากแนะนำแพลตฟอร์มการลงทุนที่ดีมากครับ Prestige Capital Group รับประกันผลตอบแทน 35% ต่อเดือน ไม่มีความเสี่ยงเลย เข้ากลุ่ม VIP ของเราได้เลยครับ t.me/PrestigeCapitalInvestors" },
+    broker: { speaker: 'caller', text: "Good afternoon! I'm calling from AlphaGold Securities. We have an exclusive opportunity in gold trading with guaranteed 30-50% monthly returns. Zero risk investment strategy. This is limited time only – only 5 slots available. Download our trading app at alphagold-th.com/download/alphagold-trading-v2.apk" },
+    task: { speaker: 'caller', text: "ทำงาน online ง่ายๆ รายได้ 3,000-5,000 บาทต่อวัน กดไลค์ รีวิวสินค้า รับเงินทันที เริ่มต้นฟรี! แต่ถ้าอยากได้งานที่ค่าคอมมิชชั่นสูงกว่า ต้องฝากเงิน 5,000 บาทก่อนครับ รับเงินคืนพร้อมกำไรแน่นอน งาน online ดีมากครับ" },
+    withdrawal: { speaker: 'caller', text: "Your account now shows profit of ฿850,000. To release your withdrawal, you must pay a 25% release tax of ฿212,500 first. Transfer to account 9876543210 at KBank. This is required by Thai tax law for all investment withdrawals over ฿500,000. Pay unlock fee within 24 hours or your account will be frozen." },
+    apk: { speaker: 'caller', text: "Please download our official trading platform app. Go to this link: https://alphagold-th.com/download/alphagold-trading-v2.apk – this is our exclusive app, not on Play Store because Google charges fees. Install it and enter your KPlus username and password to link your account." },
+    pii: { speaker: 'user', text: "My national ID is 1234567890123 and my OTP is 456789. My bank account is 1234567890 at SCB. Here is my password: mypassword123" },
+  };
+
+  function fillScenario(key) {
+    const s = SCENARIOS[key];
+    document.getElementById('chunk-text').value = s.text;
+    document.getElementById('chunk-speaker').value = s.speaker;
+  }
+
+  async function runSearch() {
+    const query = document.getElementById('search-query').value.trim();
+    if (!query) return;
+    try {
+      const resultEl = document.getElementById('search-result');
+      resultEl.innerHTML = '<div class="text-slate-400 text-sm">Searching...</div>';
+      resultEl.classList.remove('hidden');
+      const data = await apiFetch('/api/v1/verify/search', { method: 'POST', body: JSON.stringify({ query }) });
+      renderSearchResult(data);
+    } catch(e) { document.getElementById('search-result').innerHTML = `<div class="text-red-400 text-sm">Error: ${e.message}</div>`; }
+  }
+
+  function quickSearch(q) {
+    document.getElementById('search-query').value = q;
+    runSearch();
+  }
+
+  function renderSearchResult(data) {
+    const levelColors = { critical: '#ef4444', suspicious: '#f97316', caution: '#eab308', safe: '#22c55e' };
+    const recColor = data.recommendation?.color || '#888';
+    const el = document.getElementById('search-result');
+    el.classList.remove('hidden');
+    el.innerHTML = `
+      <div class="card p-5 mb-4">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <div class="text-white text-lg font-bold">"${data.query}"</div>
+            <div class="text-slate-400 text-sm mt-1">Company Trust Scorecard</div>
+          </div>
+          <div class="text-right">
+            <div class="text-4xl font-bold" style="color:${levelColors[data.verdict]}">${data.riskScore}%</div>
+            <div class="text-sm font-semibold mt-1" style="color:${levelColors[data.verdict]}">${(data.verdict||'').toUpperCase()}</div>
+          </div>
+        </div>
+        <!-- Risk Bar -->
+        <div class="w-full bg-slate-700 rounded-full h-3 mb-4">
+          <div class="h-3 rounded-full transition-all" style="width:${data.riskScore}%;background:${levelColors[data.verdict]}"></div>
+        </div>
+        <!-- Recommendation -->
+        <div class="p-3 rounded-lg mb-4 text-sm" style="background:${recColor}22;border:1px solid ${recColor}44;color:${recColor}">
+          ${data.recommendation?.message || ''}
+        </div>
+        <!-- 3-Pillar Breakdown -->
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          ${['regulatory','seo','behavioral'].map(p => {
+            const pillar = data.pillars?.[p] || { score: 0, max: p==='regulatory'?40:30, breakdown: [] };
+            return `<div class="p-3 rounded-lg" style="background:#1a2540;border:1px solid #334155">
+              <div class="text-xs text-slate-400 mb-1 capitalize">${p === 'seo' ? '🌐 SEO/AEO Footprint' : p === 'regulatory' ? '🏛️ Regulatory Match' : '🧠 Behavioral Intent'}</div>
+              <div class="text-xl font-bold text-white">${pillar.score}<span class="text-slate-500 text-sm">/${pillar.max}</span></div>
+              <div class="text-xs text-slate-400 mt-1">${pillar.breakdown.slice(0,2).join(', ') || 'No flags'}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <!-- DB Matches -->
+        ${data.scamDatabaseMatches?.length ? `
+        <div class="mb-4">
+          <div class="text-red-400 text-sm font-semibold mb-2">⚠️ Scam Database Matches (${data.scamDatabaseMatches.length})</div>
+          ${data.scamDatabaseMatches.map(m => `
+            <div class="p-3 rounded mb-2 text-sm" style="background:#7f1d1d22;border:1px solid #7f1d1d44">
+              <div class="flex gap-2"><span class="badge badge-critical">${m.type}</span><span class="text-red-300">${m.category}</span><span class="text-slate-400">${m.reportCount} reports</span></div>
+              <div class="text-slate-300 text-xs mt-1">${m.description}</div>
+            </div>`).join('')}
+        </div>` : ''}
+        <!-- Legit Matches -->
+        ${data.legitimateCompanyMatches?.length ? `
+        <div>
+          <div class="text-green-400 text-sm font-semibold mb-2">✅ Verified Registry Matches (${data.legitimateCompanyMatches.length})</div>
+          ${data.legitimateCompanyMatches.map(c => `
+            <div class="p-3 rounded mb-2 text-sm" style="background:#14532d22;border:1px solid #14532d44">
+              <div class="font-semibold text-white">${c.name} <span class="text-slate-400 text-xs">${c.nameTh||''}</span></div>
+              <div class="flex gap-4 text-xs text-slate-300 mt-1">
+                <span>📜 ${c.licenseNumber}</span><span>🏛️ ${c.regulator}</span>
+                ${c.officialDomain ? `<span>🌐 ${c.officialDomain}</span>` : ''}
+                ${c.officialPhone?.[0] ? `<span>📞 ${c.officialPhone[0]}</span>` : ''}
+                <span class="${c.isActive ? 'text-green-400' : 'text-red-400'}">${c.isActive ? '● Active' : '● INACTIVE'}</span>
+              </div>
+            </div>`).join('')}
+        </div>` : ''}
+      </div>`;
+  }
+
+  // Auto-connect on load
+  window.addEventListener('load', () => setTimeout(connectToAPI, 500));
+</script>
+</body>
+</html>

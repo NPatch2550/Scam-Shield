@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F172A"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📢 Report a Scam"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submissions are enriched with WHOIS &amp; SEC data and verified by moderators."
+            android:textColor="#94A3B8"
+            android:textSize="12sp"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ENTITY TYPE"
+            android:textColor="#94A3B8"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinner_entity_type"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#1E293B"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="14dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VALUE (Name, URL, Phone, or Bank Account)"
+            android:textColor="#94A3B8"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_report_value"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#1E293B"
+            android:paddingHorizontal="14dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#64748B"
+            android:hint="e.g. 0891234567 or fakebroker.com"
+            android:textSize="13sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="14dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SCAM CATEGORY"
+            android:textColor="#94A3B8"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinner_scam_category"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#1E293B"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="14dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DESCRIPTION &amp; DETAILS"
+            android:textColor="#94A3B8"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_report_description"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="top|start"
+            android:background="#1E293B"
+            android:padding="12dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#64748B"
+            android:hint="Describe how the scammer approached you and what was promised..."
+            android:textSize="13sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="20dp" />
+
+        <Button
+            android:id="@+id/btn_submit_report"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:backgroundTint="#2563EB"
+            android:text="Submit to Scam Shield Watchlist" />
+
+    </LinearLayout>
+</ScrollView>

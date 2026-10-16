@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Scam Shield</string>
+    <string name="tagline">Anti-Investment Scam &amp; Corporate Verification for First Jobbers</string>
+    <string name="accessibility_service_description">Scam Shield monitors chat text and URLs in messaging apps to detect fraudulent investment schemes, fake brokers, and mule accounts in real-time. Text analysis is conducted 100% on-device for user privacy.</string>
+    
+    <!-- Service Status -->
+    <string name="status_protected">Protected: Shield Active</string>
+    <string name="status_warning">Suspicious Activity Detected</string>
+    <string name="status_critical">CRITICAL SCAM ALERT</string>
+
+    <!-- Buttons -->
+    <string name="btn_activate_call_shield">Activate Call Shield</string>
+    <string name="btn_merge_calls">Merge Calls (3-Way)</string>
+    <string name="btn_direct_search">Before You Invest Search</string>
+    <string name="btn_report_scam">Report Scam</string>
+    <string name="btn_grant_permissions">Grant Protection Permissions</string>
+</resources>

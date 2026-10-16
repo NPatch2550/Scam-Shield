@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+*.log
+
+# Build artifacts & temp
+dist/
+*.zip
+bin/
+
+# Android & Gradle
+.gradle/
+android/.gradle/
+android/.idea/
+android/local.properties
+android/app/build/
+*.apk
+*.aab
+*.hprof
+
+# IDE & Editor
+.idea/
+*.iml
+.vscode/
+
+# OS generated
+Thumbs.db
+.DS_Store

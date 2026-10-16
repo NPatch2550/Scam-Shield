@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bubble_root"
+    android:layout_width="64dp"
+    android:layout_height="64dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Outer Ring with Dynamic Risk Color (Green / Yellow / Red) -->
+    <View
+        android:id="@+id/bubble_ring"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_bubble_ring" />
+
+    <!-- Center Shield Icon -->
+    <ImageView
+        android:id="@+id/bubble_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:src="@android:drawable/ic_lock_idle_lock"
+        android:contentDescription="Scam Shield Icon" />
+
+    <!-- Risk Badge Number -->
+    <TextView
+        android:id="@+id/bubble_risk_badge"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="top|end"
+        android:background="@drawable/bg_badge_circle"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="#FFFFFF"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+</FrameLayout>
